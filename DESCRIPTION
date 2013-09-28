@@ -1,0 +1,14 @@
+Package: hashtable
+Type: Package
+Title: It provides an R hashtable implementation over lists using the
+        C++ interface
+Version: 1.0
+Date: 2013-09-27
+Author: Giacomo Bergami
+Maintainer: Giacomo Bergami <giacomo90@libero.it>
+Description: More about what it does (maybe more than
+      one line)
+License: GPLv2
+Depends: Rcpp (>= 0.10.4), digest
+LinkingTo: Rcpp, digest
+Packaged: 2013-09-28 01:27:08 UTC; gyankos
