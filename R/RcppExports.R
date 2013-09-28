@@ -1,5 +1,5 @@
 #
-# hashtable.R
+# RcppExports.R
 # This file is part of hashtable
 #
 # Copyright (C) 2013 - Giacomo Bergami
