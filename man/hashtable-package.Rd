@@ -27,7 +27,7 @@ Maintainer: Giacomo Bergami <giacomo90@libero.it>
 }
 \keyword{ package }
 \examples{
- i = newHashT()  #Generates a new HashTable
+ i = newHashT()      #Generates a new HashTable
  IdRM_AddElem(i,5)   #Inserts an element by value
  IdRM_RemElem(i,5)   #Removes an element by value
  #IdRM_UpdateElem(i,5,6)   removes 5 and adds 6

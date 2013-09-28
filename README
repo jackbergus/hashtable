@@ -5,8 +5,7 @@
 * Put any C/C++/Fortran code in 'src'.
 * If you have compiled code, add a useDynLib()
   directive to 'NAMESPACE'.
-* Run "R CMD build" to build the package tarball.
-* Run "R CMD check" to check the package tarball.
-* Run "R CMD INSTALL --preclean  --no-multiarch hashtable" to install the package
+* Run R CMD build to build the package tarball.
+* Run R CMD check to check the package tarball.
 
 Read "Writing R Extensions" for more information.

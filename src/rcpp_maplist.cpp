@@ -72,6 +72,7 @@ struct hashmap {
 static void _rmHashtable(SEXP xp)
 {
     struct hashmap* list = (struct hashmap*)R_ExternalPtrAddr(xp);
+    if (!list) return;
     delete list->g;
     delete list->valmap;
     R_ClearExternalPtr(xp);
@@ -172,6 +173,40 @@ SEXP addKeyValueElem(SEXP xp,SEXP key,SEXP val) {
 }
 
 // [[Rcpp::export]]
+SEXP hasKeyValueElem(SEXP xp,SEXP key,SEXP val) {
+    if (!Rf_isString(key)) 
+        return Rf_ScalarInteger(0);
+    struct hashmap* list = (struct hashmap*)R_ExternalPtrAddr(xp);
+    if (!list) 
+        return Rf_ScalarInteger(0);
+    
+    // Hash Key
+    std::string keystr = as<std::string>(key);
+    //Rf_error(keystr.c_str());
+    
+    // Search with the hashing function
+    map<string,map<int,int>*>::iterator it;
+    it = list->g->find(keystr);
+    
+    //If the hashkey was found
+    if (!(it == list->g->end())) {
+        map<int,int>* elem = it->second;
+        char* ele;
+        if (!elem) 
+            error_return("Error while obtaining déjà inserted data\n");
+        for (auto i: *elem) {
+            if (sameid(i.second,val)) { return Rf_ScalarInteger(1); }    
+        }
+        return Rf_ScalarInteger(0);
+    }
+    else {
+        // Value Index
+        return Rf_ScalarInteger(0);
+    }
+    
+}
+
+// [[Rcpp::export]]
 SEXP remKeyValueElem(SEXP xp,SEXP key,SEXP val) {
     if (!Rf_isString(key)) 
         return Rf_ScalarInteger(0);
@@ -214,4 +249,91 @@ SEXP remKeyValueElem(SEXP xp,SEXP key,SEXP val) {
         return Rf_ScalarInteger(0);
     }
     
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+#define MAP  map<string,unsigned long>
+
+static void _rmMap(SEXP xp)
+{
+    MAP* list = (MAP*)R_ExternalPtrAddr(xp);
+    if (!list) return;
+    R_ClearExternalPtr(xp);
+    delete list;
+}
+
+// [[Rcpp::export]]
+SEXP rmMap(SEXP xp) {
+    _rmMap(xp);
+    return R_NilValue;
+}
+
+// [[Rcpp::export]]
+SEXP newMap() {
+    MAP* m = new MAP();
+    if (!m) return R_NilValue;
+    
+    SEXP ret;
+    ret = R_MakeExternalPtr(m, Rf_mkString("map_obj"), R_NilValue);
+    PROTECT(ret);
+    R_RegisterCFinalizerEx(ret, _rmMap, TRUE);
+    UNPROTECT(1);
+    return ret;
+    
+}
+
+int __map_hasKey(SEXP m, SEXP k) {
+    MAP* list = (MAP*)R_ExternalPtrAddr(m);
+    if (!list) return 0;
+    
+    if (!Rf_isString(k)) 
+        return 0;
+    
+    std::string keystr = as<std::string>(k);
+    
+    MAP::iterator it = list->find(keystr);
+    return (it != list->end());
+}
+
+// [[Rcpp::export]]
+SEXP map_AddKeyVal(SEXP m, SEXP k, SEXP val) {
+    MAP* list = (MAP*)R_ExternalPtrAddr(m);
+    if (!list) return R_NilValue;
+    
+    if (!Rf_isString(k)) 
+        return R_NilValue;
+    
+    std::string keystr = as<std::string>(k);
+    
+    if (!__map_hasKey(m,k))
+        list->insert(pair<string,unsigned long>(keystr,local_getPtr(val)));
+    else 
+        return R_NilValue; 
+    
+    return m;
+    
+}
+
+
+// [[Rcpp::export]]
+SEXP map_hasKey(SEXP m, SEXP k) {
+    return Rf_ScalarInteger(__map_hasKey(m,k));
+}
+
+// [[Rcpp::export]]
+SEXP map_getVal(SEXP m, SEXP k) {
+    MAP* list = (MAP*)R_ExternalPtrAddr(m);
+    if (!list) return R_NilValue;
+    
+    if (!Rf_isString(k)) 
+        return R_NilValue;
+    
+    std::string keystr = as<std::string>(k);
+    
+    MAP::iterator it = list->find(keystr);
+    if (it == list->end()) 
+        return R_NilValue;
+    else
+        return local_ptr_toRObject(it->second);
 }

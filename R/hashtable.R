@@ -28,6 +28,10 @@ IdRM_RemElem <- function (x,val) {
     return(remKeyValueElem(x,digest(val,algo="sha1"),val))
 }
 
+IdRM_hasElem <- function (x,val) {
+    return(hasKeyValueElem(x,digest(val,algo="sha1"),val)==1)
+}
+
 IdRM_UpdateElem <- function (x,old,new) {
     IdRM_RemElem(x,old)
     return(IdRM_AddElem(x,new))
